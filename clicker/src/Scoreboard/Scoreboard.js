@@ -7,17 +7,25 @@ function pad(num, size) {
   return str.split('');
 }
 
-function renderCells(score) {
-  return score.map((it, index) => (
+function renderCells(label, score) {
+  const rows = score.map((it, index) => (
     <div key={`scoreChunk${index}`} className="scoreboard-cell">{it}</div>
   ));
+  return (
+    <div className="scoreboard-row">
+      <span className="scoreboard-label">{label}</span>
+      {rows}
+    </div>
+  )
 }
 
-export default function Scoreboard({ balance }) {
-  const balanceCells = pad(balance, 10);
+export default function Scoreboard({ balance, goldBalance }) {
+  const goldCells = pad(goldBalance, 6);
+  const balanceCells = pad(balance, 9);
   return (
     <div className="scoreboard">
-      {renderCells(balanceCells)}
+      {renderCells('G', goldCells)}
+      {renderCells('$', balanceCells)}
     </div>
   );
 }
