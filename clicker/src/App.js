@@ -15,6 +15,7 @@ function App() {
   const [ balance, setBalance ] = useState(0);
   const [ goldBalance, setGoldBalance ] = useState(0);
   const [ clickerPower, setClickerPower ] = useState(1);
+  const [ generatorsPower, setGeneratorsPower ] = useState(1);
   const [ generators, setGenerators ] = useState([]);
   const [ controlls, setControlls ] = useState({});
 
@@ -23,10 +24,12 @@ function App() {
   }, [balance, clickerPower, setBalance]);
 
   const nextClickerPowerPrice = (clickerPower + 1) * 16;
+  const NEXT_GENERATOR_POWER_PRICE = (generatorsPower + 1) * 1;
   const canBuyGenerator = generators.length < 10 && balance >= GENERATOR_PRICE;
   const canBuyGold = balance >= GOLD_PRICE;
   const canBuyGeneratorControll = balance >= CONTROLL_GENERATOR_PRICE && !controlls.generator;
   const canSumGenerators = generators.some(it => it > 0);
+  const canBuyGeneratorPower = balance >= NEXT_GENERATOR_POWER_PRICE && generatorsPower < 11;
   
   const handleBuyClickerPower = useCallback(() => {
     if (balance >= nextClickerPowerPrice) {
@@ -78,6 +81,13 @@ function App() {
     }
   }, [ balance, controlls, setBalance, setControlls, canBuyGeneratorControll ]);
 
+  const handleBuyGeneratorPowerClick = useCallback(() => {
+    if (canBuyGeneratorPower) {
+      setBalance(balance - NEXT_GENERATOR_POWER_PRICE);
+      setGeneratorsPower(generatorsPower + 1);
+    }
+  }, [ canBuyGeneratorPower, generatorsPower, balance, NEXT_GENERATOR_POWER_PRICE ]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       if (generators) {
@@ -85,13 +95,13 @@ function App() {
           if (it + 1 > 999) {
             return 999;
           }
-          return it + 1;
+          return it + generatorsPower;
         });
         setGenerators(nextGenerators);
       }
     }, GENERATORS_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [generators]);
+  }, [ generators, generatorsPower ]);
 
   return (
     <div className="App">
@@ -108,6 +118,7 @@ function App() {
       />
       <Generators
         generators={generators}
+        generatorsPower={generatorsPower}
         handleClick={handleGeneratorClick}
       />
       <Controlls
@@ -142,6 +153,12 @@ function App() {
           disabled={!canBuyGeneratorControll}
         >
           Buy Generator Controll<br />(${CONTROLL_GENERATOR_PRICE})
+        </button>
+        <button
+          onClick={handleBuyGeneratorPowerClick}
+          disabled={!canBuyGeneratorPower}
+        >
+          Buy Generator +1<br />(${NEXT_GENERATOR_POWER_PRICE})
         </button>
       </div>
     </div>
